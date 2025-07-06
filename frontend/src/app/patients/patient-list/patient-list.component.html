@@ -1,0 +1,376 @@
+<div class="min-h-screen bg-gray-50">
+    <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Patient Management</h1>
+          <p class="mt-2 text-gray-600">Manage and monitor patient information</p>
+        </div>
+        <button 
+          mat-flat-button 
+          (click)="addPatient()"
+          class="bg-teal-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-teal-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+          <mat-icon>add</mat-icon>
+          Add Patient
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div *ngIf="error" class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <mat-icon class="text-red-500">error_outline</mat-icon>
+          <span class="text-red-800 font-medium">{{ error }}</span>
+        </div>
+        <button 
+          mat-icon-button 
+          (click)="clearError()"
+          class="text-red-500 hover:bg-red-100 rounded-full transition-colors duration-200">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+        <div class="mb-8">
+            <div class="mb-6">
+        <div class="max-w-md">
+          <mat-form-field appearance="outline" class="w-full modern-search">
+            <mat-label>Search patients</mat-label>
+            <input 
+              matInput 
+              placeholder="Search by name or email..." 
+              [value]="searchTerm"
+              (input)="onSearch($any($event.target).value || '')"
+              class="search-input">
+            <mat-icon matSuffix class="text-gray-400">search</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+            <div *ngIf="!loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Total Patients</p>
+              <p class="text-3xl font-bold text-gray-900">{{ patients.length }}</p>
+            </div>
+            <div class="p-3 bg-teal-100 rounded-full">
+              <mat-icon class="text-teal-600">people</mat-icon>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Search Results</p>
+              <p class="text-3xl font-bold text-gray-900">{{ filteredPatients.length }}</p>
+            </div>
+            <div class="p-3 bg-blue-100 rounded-full">
+              <mat-icon class="text-blue-600">search</mat-icon>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Active Records</p>
+              <p class="text-3xl font-bold text-gray-900">{{ patients.length }}</p>
+            </div>
+            <div class="p-3 bg-green-100 rounded-full">
+              <mat-icon class="text-green-600">verified</mat-icon>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">This Month</p>
+              <p class="text-3xl font-bold text-gray-900">{{ patients.length }}</p>
+            </div>
+            <div class="p-3 bg-purple-100 rounded-full">
+              <mat-icon class="text-purple-600">calendar_month</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <div *ngIf="loading" class="flex flex-col items-center justify-center py-20">
+      <mat-spinner diameter="50" class="mb-6"></mat-spinner>
+      <p class="text-gray-600 text-lg font-medium">Loading patients...</p>
+      <p class="text-gray-500 text-sm mt-2">Please wait while we fetch the data</p>
+    </div>
+
+        <div *ngIf="!loading" class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <mat-icon class="text-teal-600">list_alt</mat-icon>
+          Patient Records
+        </h2>
+      </div>
+
+            <div class="hidden md:block overflow-x-auto">
+        <table mat-table [dataSource]="paginatedPatients" class="w-full">
+                    <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider bg-gray-50">Name</th>
+            <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-teal-700 font-semibold text-sm">
+                    {{ patient.firstName.charAt(0) }}{{ patient.lastName.charAt(0) }}
+                  </span>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-900">{{ patient.firstName }} {{ patient.lastName }}</div>
+                  <div class="text-sm text-gray-500">Patient ID: {{ patient._id?.slice(-6) }}</div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+                    <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider bg-gray-50">Contact</th>
+            <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+              <div>
+                <div class="text-sm text-gray-900 flex items-center gap-2">
+                  <mat-icon class="text-gray-400 text-sm">email</mat-icon>
+                  {{ patient.email }}
+                </div>
+                <div class="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                  <mat-icon class="text-gray-400 text-sm">phone</mat-icon>
+                  {{ patient.phoneNumber }}
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+                    <ng-container matColumnDef="dateOfBirth">
+            <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider bg-gray-50">Date of Birth</th>
+            <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ patient.dob | date:'mediumDate' }}</div>
+              <div class="text-sm text-gray-500">Age: {{ calculateAge(patient.dob) }} years</div>
+            </td>
+          </ng-container>
+
+                    <ng-container matColumnDef="address">
+            <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider bg-gray-50 ">Address</th>
+            <td mat-cell *matCellDef="let patient" class="px-6 py-4">
+              <div class="text-sm text-gray-900 max-w-xs truncate" [title]="patient.address">
+                <mat-icon class="text-gray-400 text-sm mr-1">location_on</mat-icon>
+                {{ patient.address || 'No address provided' }}
+              </div>
+            </td>
+          </ng-container>
+
+                    <ng-container matColumnDef="dateCreated">
+            <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider bg-gray-50">Date Created</th>
+            <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ patient.createdAt | date:'shortDate' }}</div>
+              <div class="text-sm text-gray-500">{{ patient.createdAt | date:'shortTime' }}</div>
+            </td>
+          </ng-container>
+
+                    <ng-container matColumnDef="dateUpdated">
+            <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider bg-gray-50">Date Updated</th>
+            <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ patient.updatedAt | date:'shortDate' }}</div>
+              <div class="text-sm text-gray-500">{{ patient.updatedAt | date:'shortTime' }}</div>
+            </td>
+          </ng-container>
+
+                    <ng-container matColumnDef="totalVisits">
+            <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider bg-gray-50">Visits</th>
+            <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
+                {{ patient.totalVisits || 0 }} visits
+              </span>
+            </td>
+          </ng-container>
+
+                    <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider bg-gray-50">Actions</th>
+            <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap text-right">
+              <div class="flex items-center gap-2">
+                <button 
+                  mat-icon-button 
+                  matTooltip="View Visits"
+                  (click)="viewVisits(patient._id!)"
+                  class="text-teal-600 hover:bg-teal-50 transition-colors duration-200">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  matTooltip="Edit Patient"
+                  (click)="editPatient(patient._id!)"
+                  class="text-blue-600 hover:bg-blue-50 transition-colors duration-200">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  matTooltip="Delete Patient"
+                  (click)="deletePatient(patient)"
+                  class="text-red-600 hover:bg-red-50 transition-colors duration-200">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['name', 'email', 'dateOfBirth', 'address', 'dateCreated', 'dateUpdated', 'totalVisits', 'actions']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['name', 'email', 'dateOfBirth', 'address', 'dateCreated', 'dateUpdated', 'totalVisits', 'actions'];" class="hover:bg-gray-50 transition-colors duration-200"></tr>
+        </table>
+      </div>
+
+        <div *ngIf="filteredPatients.length === 0" class="no-results">
+      <mat-icon>person_search</mat-icon>
+      <h3>No patients found</h3>
+      <p>Try adjusting your search criteria or add a new patient.</p>
+    </div>
+  </div>
+
+    <div *ngIf="!loading && filteredPatients.length > 0" class="pagination">
+    <button mat-icon-button 
+            [disabled]="currentPage === 1"
+            (click)="onPageChange(currentPage - 1)">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    
+    <span class="page-info">
+      Page {{ currentPage }} of {{ totalPages }} 
+      ({{ filteredPatients.length }} patients)
+    </span>
+    
+    <button mat-icon-button 
+            [disabled]="currentPage === totalPages"
+            (click)="onPageChange(currentPage + 1)">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+</div>
+
+<style>
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  color: #333;
+}
+
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  color: #d32f2f;
+  margin-bottom: 20px;
+}
+
+.search-container {
+  margin-bottom: 20px;
+}
+
+.search-field {
+  width: 100%;
+  max-width: 400px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: center;
+  padding: 40px;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.patients-table {
+  width: 100%;
+}
+
+.visits-badge {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.no-results mat-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  padding: 16px;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .patients-table {
+    font-size: 14px;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+}
+</style>

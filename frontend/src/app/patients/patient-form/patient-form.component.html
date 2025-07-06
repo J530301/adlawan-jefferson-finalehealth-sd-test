@@ -1,0 +1,146 @@
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        {{ isEditMode ? 'Edit Patient' : 'Add New Patient' }}
+      </h1>
+      <p class="text-gray-600">
+        {{ isEditMode ? 'Update patient information below' : 'Enter patient details to create a new record' }}
+      </p>
+    </div>
+
+        <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+            <div *ngIf="loading" class="p-12 text-center">
+        <mat-spinner diameter="40" class="mx-auto mb-4"></mat-spinner>
+        <p class="text-gray-600 text-lg">{{ isEditMode ? 'Loading patient...' : 'Please wait...' }}</p>
+      </div>
+
+            <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" *ngIf="!loading" class="p-8">
+                <div class="mb-8">
+          <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <mat-icon class="mr-3 text-teal-600 w-6 h-6">person</mat-icon>
+            Personal Information
+          </h2>
+          
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="mb-6">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>First Name</mat-label>
+                <input matInput formControlName="firstName" placeholder="Enter first name" class="text-gray-900">
+                <mat-icon matSuffix class="text-gray-400 w-5 h-5">badge</mat-icon>
+                <mat-error *ngIf="patientForm.get('firstName')?.hasError('required')" class="text-red-500 text-sm">
+                  First name is required
+                </mat-error>
+                <mat-error *ngIf="patientForm.get('firstName')?.hasError('minlength')" class="text-red-500 text-sm">
+                  First name must be at least 2 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="mb-6">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Last Name</mat-label>
+                <input matInput formControlName="lastName" placeholder="Enter last name" class="text-gray-900">
+                <mat-icon matSuffix class="text-gray-400 w-5 h-5">badge</mat-icon>
+                <mat-error *ngIf="patientForm.get('lastName')?.hasError('required')" class="text-red-500 text-sm">
+                  Last name is required
+                </mat-error>
+                <mat-error *ngIf="patientForm.get('lastName')?.hasError('minlength')" class="text-red-500 text-sm">
+                  Last name must be at least 2 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+                    <div class="mb-6">
+            <div class="space-y-2">
+              <label for="dob" class="block text-sm font-medium text-gray-700">
+                Date of Birth <span class="text-red-500">*</span>
+              </label>
+              <input 
+                id="dob"
+                type="text"
+                formControlName="dob" 
+                placeholder="yyyy-mm-dd (e.g., {{ getTodayInYYYYMMDD() }})"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-400">
+              <div *ngIf="patientForm.get('dob')?.hasError('required') && patientForm.get('dob')?.touched" 
+                   class="text-sm text-red-600">
+                Date of birth is required
+              </div>
+              <p class="text-xs text-gray-500">Today's date is pre-filled. You can edit it to any date in yyyy-mm-dd format</p>
+            </div>
+          </div>
+        </div>
+
+                <div class="mb-8">
+          <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <mat-icon class="mr-3 text-teal-600 w-6 h-6">contact_phone</mat-icon>
+            Contact Information
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="mb-6">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Email Address</mat-label>
+                <input matInput type="email" formControlName="email" placeholder="Enter email address" class="text-gray-900">
+                <mat-icon matSuffix class="text-gray-400 w-5 h-5">email</mat-icon>
+                <mat-error *ngIf="patientForm.get('email')?.hasError('required')" class="text-red-500 text-sm">
+                  Email is required
+                </mat-error>
+                <mat-error *ngIf="patientForm.get('email')?.hasError('email')" class="text-red-500 text-sm">
+                  Please enter a valid email address
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="mb-6">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Phone Number</mat-label>
+                <input matInput formControlName="phoneNumber" placeholder="Enter phone number" class="text-gray-900">
+                <mat-icon matSuffix class="text-gray-400 w-5 h-5">phone</mat-icon>
+                <mat-error *ngIf="patientForm.get('phoneNumber')?.hasError('required')" class="text-red-500 text-sm">
+                  Phone number is required
+                </mat-error>
+                <mat-error *ngIf="patientForm.get('phoneNumber')?.hasError('pattern')" class="text-red-500 text-sm">
+                  Please enter a valid phone number
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="mb-6">
+  <label class="block text-gray-700 font-medium mb-2">Address</label>
+  <mat-form-field appearance="outline" class="w-full">
+        <textarea matInput formControlName="address" placeholder="Enter full address" rows="3" class="text-gray-900 resize-none"></textarea>
+    <mat-icon matSuffix class="text-gray-400 self-start mt-3 w-5 h-5">location_on</mat-icon>
+    <mat-error *ngIf="patientForm.get('address')?.hasError('required')" class="text-red-500 text-sm">
+      Address is required
+    </mat-error>
+  </mat-form-field>
+</div>
+        </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+          <button 
+            type="button" 
+            mat-stroked-button 
+            (click)="onCancel()" 
+            class="flex-1 sm:flex-none px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2">
+            <mat-icon class="mr-2 w-5 h-5">arrow_back</mat-icon>
+            Cancel
+          </button>
+          
+          <button 
+            type="submit" 
+            mat-flat-button 
+            [disabled]="!patientForm.valid || submitting" 
+            class="flex-1 sm:flex-none px-8 py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center justify-center">
+            <mat-spinner diameter="20" *ngIf="submitting" class="mr-3"></mat-spinner>
+            <mat-icon *ngIf="!submitting" class="mr-2 w-5 h-5">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ submitting ? 'Saving...' : (isEditMode ? 'Update Patient' : 'Create Patient') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<div class="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+      <div class="px-6 py-5 border-b border-gray-200">
+        <h1 class="text-2xl font-semibold text-gray-900">
+          {{ isEditMode ? 'Edit Visit' : 'Add New Visit' }}
+        </h1>
+        <p *ngIf="patient" class="mt-1 text-sm text-gray-600">
+          <span class="font-medium">Patient:</span> {{ patient.firstName }} {{ patient.lastName }}
+        </p>
+      </div>
+    </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-6 py-6">
+                <div *ngIf="loading" class="flex flex-col items-center justify-center py-16">
+          <mat-spinner diameter="40" class="mb-4"></mat-spinner>
+          <p class="text-gray-600 text-sm">{{ isEditMode ? 'Loading visit...' : 'Please wait...' }}</p>
+        </div>
+
+                <form [formGroup]="visitForm" (ngSubmit)="onSubmit()" *ngIf="!loading" class="space-y-6">
+                    <div class="space-y-2">
+            <label for="visitDate" class="block text-sm font-medium text-gray-700">
+              Visit Date <span class="text-red-500">*</span>
+            </label>
+            <input 
+              id="visitDate"
+              type="text"
+              formControlName="visitDate" 
+              placeholder="yyyy-mm-dd (e.g., {{ getTodayInYYYYMMDD() }})"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400">
+            <div *ngIf="visitForm.get('visitDate')?.hasError('required') && visitForm.get('visitDate')?.touched" 
+                 class="text-sm text-red-600">
+              Visit date is required
+            </div>
+            <p class="text-xs text-gray-500">Today's date is pre-filled. You can edit it to any date in yyyy-mm-dd format</p>
+          </div>
+
+                    <div class="space-y-2">
+            <label for="visitType" class="block text-sm font-medium text-gray-700">
+              Visit Type <span class="text-red-500">*</span>
+            </label>
+            <select 
+              id="visitType"
+              formControlName="visitType" 
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+              <option value="">Select visit type</option>
+              <option value="Home">Home</option>
+              <option value="Telehealth">Telehealth</option>
+              <option value="Clinic">Clinic</option>
+            </select>
+            <div *ngIf="visitForm.get('visitType')?.hasError('required') && visitForm.get('visitType')?.touched" 
+                 class="text-sm text-red-600">
+              Visit type is required
+            </div>
+            <p class="text-xs text-gray-500">Select the type of visit from the available options</p>
+          </div>
+
+                    <div class="space-y-2">
+            <label for="notes" class="block text-sm font-medium text-gray-700">
+              Visit Notes
+            </label>
+            <textarea 
+              id="notes"
+              formControlName="notes" 
+              placeholder="Enter visit notes, observations, or treatment details (optional)"
+              rows="4"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical min-h-[100px] placeholder-gray-400"></textarea>
+            <p class="text-xs text-gray-500">Optional: Add any relevant notes about the visit</p>
+          </div>
+
+                    <div class="flex flex-col sm:flex-row sm:justify-end sm:space-x-3 space-y-3 sm:space-y-0 pt-6 border-t border-gray-200">
+            <button 
+              type="button" 
+              (click)="onCancel()" 
+              class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 sm:w-auto w-full">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!visitForm.valid || submitting" 
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 sm:w-auto w-full">
+              <mat-spinner diameter="16" *ngIf="submitting" class="mr-2"></mat-spinner>
+              {{ submitting ? 'Saving...' : (isEditMode ? 'Update Visit' : 'Create Visit') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+      <h3 class="text-sm font-medium text-blue-800 mb-2">📝 Example Visit Data</h3>
+      <div class="text-xs text-blue-700 space-y-1">
+        <p><strong>Visit Date:</strong> {{ getCurrentDate() }}</p>
+        <p><strong>Visit Type:</strong> Home, Telehealth, or Clinic</p>
+        <p><strong>Notes:</strong> "Patient reported mild headache. Vital signs normal. Prescribed rest and follow-up in 2 weeks if symptoms persist."</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+

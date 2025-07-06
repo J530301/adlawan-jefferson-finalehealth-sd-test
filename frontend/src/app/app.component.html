@@ -1,0 +1,63 @@
+<div class="app-container">
+  <mat-toolbar color="primary" class="header">
+    <mat-toolbar-row>
+      <span class="app-title">Patient Management System</span>
+      <nav class="nav-links">
+        <a mat-button routerLink="/patients" routerLinkActive="active">Patients</a>
+      </nav>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+
+<style>
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.nav-links {
+  margin-left: auto;
+  display: flex;
+  gap: 16px;
+}
+
+.nav-links a {
+  color: white;
+}
+
+.nav-links a.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.main-content {
+  flex: 1;
+  overflow: auto;
+  background-color: #fafafa;
+}
+
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 16px;
+  }
+  
+  .nav-links {
+    gap: 8px;
+  }
+}
+</style>

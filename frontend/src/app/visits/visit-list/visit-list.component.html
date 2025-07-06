@@ -1,0 +1,164 @@
+<div class="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+      <div class="px-6 py-5 border-b border-gray-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                    <div class="flex-1">
+            <h1 class="text-2xl font-semibold text-gray-900">Patient Visits</h1>
+            <p *ngIf="patient" class="mt-1 text-sm text-gray-600">
+              <span class="font-medium">Patient:</span> {{ patient.firstName }} {{ patient.lastName }}
+            </p>
+          </div>
+          
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-3">
+            <button 
+              (click)="onBackToPatients()" 
+              class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+              <mat-icon class="mr-2 text-gray-500">arrow_back</mat-icon>
+              Back to Patients
+            </button>
+            <button 
+              (click)="onAddVisit()" 
+              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+              <mat-icon class="mr-2">add</mat-icon>
+              Add Visit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div *ngIf="loading" class="flex flex-col items-center justify-center py-16">
+        <mat-spinner diameter="40" class="mb-4"></mat-spinner>
+        <p class="text-gray-600 text-sm">Loading visits...</p>
+      </div>
+
+            <div *ngIf="error && !loading" class="flex flex-col items-center justify-center py-16">
+        <div class="text-center">
+          <mat-icon class="text-red-500 text-5xl mb-4">error_outline</mat-icon>
+          <p class="text-red-600 mb-4">{{ error }}</p>
+          <button 
+            (click)="ngOnInit()" 
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+            <mat-icon class="mr-2">refresh</mat-icon>
+            Retry
+          </button>
+        </div>
+      </div>
+
+            <div *ngIf="!loading && !error">
+                <div *ngIf="visits.length === 0" class="flex flex-col items-center justify-center py-16">
+          <mat-icon class="text-gray-400 text-6xl mb-4">event_note</mat-icon>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No visits found</h3>
+          <p class="text-gray-600 mb-6">This patient doesn't have any visits recorded yet.</p>
+          <button 
+            (click)="onAddVisit()" 
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+            <mat-icon class="mr-2">add</mat-icon>
+            Add First Visit
+          </button>
+        </div>
+
+                <div *ngIf="visits.length > 0" class="overflow-hidden">
+          <div class="overflow-x-auto">
+            <mat-table [dataSource]="visits" class="w-full min-w-full">
+                            <ng-container matColumnDef="patientId">
+                <mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Patient ID
+                </mat-header-cell>
+                <mat-cell *matCellDef="let visit" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                    {{ getPatientIdDisplay(visit) }}
+                  </span>
+                </mat-cell>
+              </ng-container>
+
+                            <ng-container matColumnDef="visitDate">
+                <mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Visit Date
+                </mat-header-cell>
+                <mat-cell *matCellDef="let visit" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatDate(visit.visitDate) }}
+                </mat-cell>
+              </ng-container>
+
+                            <ng-container matColumnDef="notes">
+                <mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Notes
+                </mat-header-cell>
+                <mat-cell *matCellDef="let visit" class="px-6 py-4 text-sm text-gray-900">
+                  <div class="max-w-xs truncate" [title]="visit.notes">
+                    {{ visit.notes ? (visit.notes.length > 50 ? visit.notes.substring(0, 50) + '...' : visit.notes) : '-' }}
+                  </div>
+                </mat-cell>
+              </ng-container>
+
+                            <ng-container matColumnDef="visitType">
+                <mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Visit Type
+                </mat-header-cell>
+                <mat-cell *matCellDef="let visit" class="px-6 py-4 whitespace-nowrap">
+                  <span 
+                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': visit.visitType?.toLowerCase() === 'home',
+                      'bg-blue-100 text-blue-800': visit.visitType?.toLowerCase() === 'telehealth',
+                      'bg-orange-100 text-orange-800': visit.visitType?.toLowerCase() === 'clinic',
+                      'bg-gray-100 text-gray-800': !visit.visitType
+                    }">
+                    {{ visit.visitType || 'Unknown' }}
+                  </span>
+                </mat-cell>
+              </ng-container>
+
+                            <ng-container matColumnDef="dateCreated">
+                <mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Date Created
+                </mat-header-cell>
+                <mat-cell *matCellDef="let visit" class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  {{ formatDateTime(visit.createdAt) }}
+                </mat-cell>
+              </ng-container>
+
+                            <ng-container matColumnDef="dateUpdated">
+                <mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Date Updated
+                </mat-header-cell>
+                <mat-cell *matCellDef="let visit" class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  {{ formatDateTime(visit.updatedAt) }}
+                </mat-cell>
+              </ng-container>
+
+                            <ng-container matColumnDef="actions">
+                <mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Actions
+                </mat-header-cell>
+                <mat-cell *matCellDef="let visit" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <div class="flex items-center space-x-2">
+                    <button 
+                      (click)="onEditVisit(visit)" 
+                      matTooltip="Edit visit"
+                      class="inline-flex items-center p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <mat-icon class="text-base">edit</mat-icon>
+                    </button>
+                    <button 
+                      (click)="onDeleteVisit(visit)" 
+                      matTooltip="Delete visit"
+                      class="inline-flex items-center p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500">
+                      <mat-icon class="text-base">delete</mat-icon>
+                    </button>
+                  </div>
+                </mat-cell>
+              </ng-container>
+
+              <mat-header-row *matHeaderRowDef="displayedColumns" class="border-b border-gray-200"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: displayedColumns;" class="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"></mat-row>
+            </mat-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
