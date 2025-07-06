@@ -79,14 +79,14 @@ cp .env.example .env
 
 # Update .env with your MongoDB connection string
 # MONGODB_URI=mongodb://localhost:27017/patient-visit-management
-# PORT=3000
+# PORT=3001
 
 # Start the backend server
 npm run start:dev
 ```
 
-The backend will be available at: `http://localhost:3000`
-API Documentation (Swagger): `http://localhost:3000/api`
+The backend will be available at: `http://localhost:3001`
+API Documentation (Swagger): `http://localhost:3001/api`
 
 ### 3. Frontend Setup
 
@@ -108,7 +108,7 @@ The frontend will be available at: `http://localhost:4200`
 ### Backend (.env)
 ```env
 MONGODB_URI=mongodb://localhost:27017/patient-visit-management
-PORT=3000
+PORT=3001
 NODE_ENV=development
 ```
 
@@ -116,7 +116,7 @@ NODE_ENV=development
 ```typescript
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000'
+  apiUrl: 'http://localhost:3001'
 };
 ```
 
