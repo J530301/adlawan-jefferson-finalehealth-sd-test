@@ -90,7 +90,9 @@ export class VisitListComponent implements OnInit, OnDestroy {
   }
 
   onEditVisit(visit: Visit): void {
-    this.router.navigate(['/visits/edit', visit._id]);
+    console.log('Edit visit clicked:', { visitId: visit._id, patientId: this.patientId });
+    console.log('Navigating to edit route:', ['/visits/patient', this.patientId, 'edit', visit._id]);
+    this.router.navigate(['/visits/patient', this.patientId, 'edit', visit._id]);
   }
 
   onDeleteVisit(visit: Visit): void {

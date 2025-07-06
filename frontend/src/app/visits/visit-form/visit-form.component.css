@@ -1,3 +1,19 @@
+::ng-deep .success-snackbar {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+::ng-deep .success-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+.back-button-icon {
+  transition: transform 0.2s ease;
+}
+
+.back-button-icon:hover {
+  transform: translateX(-2px);
+}
 
 
 

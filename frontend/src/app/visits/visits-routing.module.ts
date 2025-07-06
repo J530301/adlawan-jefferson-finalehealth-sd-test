@@ -6,16 +6,16 @@ import { VisitFormComponent } from './visit-form/visit-form.component';
 
 const routes: Routes = [
   {
-    path: 'patient/:patientId',
-    component: VisitListComponent
-  },
-  {
     path: 'patient/:patientId/new',
     component: VisitFormComponent
   },
   {
-    path: 'edit/:id',
+    path: 'patient/:patientId/edit/:id',
     component: VisitFormComponent
+  },
+  {
+    path: 'patient/:patientId',
+    component: VisitListComponent
   }
 ];
 

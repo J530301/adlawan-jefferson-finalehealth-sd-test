@@ -1,4 +1,3 @@
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -8,6 +7,7 @@ import { PatientService } from '../../shared/services/patient.service';
 import { Visit } from '../../shared/models/visit.model';
 import { Patient } from '../../shared/models/patient.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-visit-form',
@@ -32,6 +32,7 @@ export class VisitFormComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
+    private location: Location,
     private visitService: VisitService,
     private patientService: PatientService,
     private snackBar: MatSnackBar
@@ -40,12 +41,16 @@ export class VisitFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log('VisitForm ngOnInit - Current URL:', this.router.url);
     this.route.params.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
       this.visitId = params['id'];
       this.patientId = params['patientId'];
       this.isEditMode = !!this.visitId;
+
+      console.log('Route params:', { visitId: this.visitId, patientId: this.patientId, isEditMode: this.isEditMode });
+      console.log('Current URL after params:', this.router.url);
 
       if (this.patientId) {
         this.loadPatient();
@@ -94,7 +99,9 @@ export class VisitFormComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (visit: Visit) => {
+        console.log('Loaded visit:', visit);
         this.patientId = visit.patientId;
+        console.log('Set patientId from visit:', this.patientId);
         this.loadPatient();
         
         this.visitForm.patchValue({
@@ -141,19 +148,60 @@ export class VisitFormComponent implements OnInit, OnDestroy {
       ).subscribe({
         next: (response) => {
           console.log('Visit operation successful:', response);
-          this.submitting = false;
-          this.snackBar.open(
-            `Visit ${this.isEditMode ? 'updated' : 'created'} successfully`,
-            'Close',
-            { duration: 3000 }
-          );
-          this.onCancel();
+          
+          // Verify the update by fetching the updated visit from database
+          if (this.isEditMode && this.visitId) {
+            this.visitService.getVisitById(this.visitId).pipe(
+              takeUntil(this.destroy$)
+            ).subscribe({
+              next: (updatedVisit) => {
+                console.log('Verification: Visit updated in database:', updatedVisit);
+                this.submitting = false;
+                this.snackBar.open(
+                  '✅ Visit updated successfully! Changes have been saved to the database.',
+                  'Close',
+                  { 
+                    duration: 4000,
+                    panelClass: ['success-snackbar']
+                  }
+                );
+                // Navigate back to the visit list for this patient
+                setTimeout(() => {
+                  this.router.navigate(['/visits/patient', this.patientId]);
+                }, 1000);
+              },
+              error: (verifyError) => {
+                console.error('Verification failed:', verifyError);
+                this.submitting = false;
+                this.snackBar.open(
+                  '⚠️ Update may have failed. Please refresh and check.',
+                  'Close',
+                  { duration: 5000 }
+                );
+              }
+            });
+          } else {
+            // For create operation
+            this.submitting = false;
+            this.snackBar.open(
+              '✅ Visit created successfully!',
+              'Close',
+              { 
+                duration: 3000,
+                panelClass: ['success-snackbar']
+              }
+            );
+            // Navigate back to the visit list for this patient
+            setTimeout(() => {
+              this.router.navigate(['/visits/patient', this.patientId]);
+            }, 1000);
+          }
         },
         error: (error) => {
           console.error('Error saving visit:', error);
           this.submitting = false;
           this.snackBar.open(
-            `Failed to ${this.isEditMode ? 'update' : 'create'} visit: ${error.message || error}`,
+            `Failed to ${this.isEditMode ? 'update' : 'create'} visit. Please try again.`,
             'Close',
             { duration: 5000 }
           );
@@ -169,12 +217,21 @@ export class VisitFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  goBack(): void {
+    console.log('Go Back clicked');
+    this.location.back();
+  }
+
   onCancel(): void {
-    if (this.patientId) {
-      this.router.navigate(['/visits/patient', this.patientId]);
-    } else {
-      this.router.navigate(['/patients']);
-    }
+    console.log('Cancel clicked, patientId:', this.patientId);
+    console.log('Navigating to:', ['/visits/patient', this.patientId]);
+    // Since patientId is now always available from the route, navigate back to patient visits
+    this.router.navigate(['/visits/patient', this.patientId]).then(success => {
+      console.log('Navigation success:', success);
+    }).catch(err => {
+      console.error('Navigation error:', err);
+      this.snackBar.open('Failed to navigate to patient visits', 'Close', { duration: 3000 });
+    });
   }
 
   getCurrentDate(): string {
